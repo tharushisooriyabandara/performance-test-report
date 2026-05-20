@@ -2,10 +2,158 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0;url=report-portal/login.html">
-  <title>Redirect — DeliverGate K6 Report</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>K6 Performance Report — DeliverGate</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="report-portal/css/report.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </head>
-<body>
-  <p>Report moved to the portal. <a href="report-portal/login.html">Sign in</a></p>
+<body class="app-body">
+
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="dot"></span>
+      <span>DeliverGate</span>
+    </div>
+    <nav class="sidebar-nav" id="sidebarNav">
+      <button type="button" class="nav-item active" data-panel="api">
+        <span class="nav-icon">◈</span>
+        <span class="nav-label">API Testing</span>
+      </button>
+      <button type="button" class="nav-item" data-panel="system">
+        <span class="nav-icon">▣</span>
+        <span class="nav-label">Monitor System Resources</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <span id="sidebarUserName">K6 Report</span>
+        <span class="role-badge viewer">Public</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="app-main">
+    <header class="main-header">
+      <div>
+        <h1 class="page-title" id="pageTitle">API Testing</h1>
+        <p class="page-desc" id="pageDesc">API test results and endpoint performance</p>
+      </div>
+      <div class="main-header-meta">
+        <span id="topBarVus">VUs: 1</span>
+        <span id="topBarHost">pos-go-api.delivergate.com</span>
+        <span id="topBarDate">—</span>
+      </div>
+    </header>
+
+    <section class="content-panel active" id="panel-api" data-title="API Testing" data-desc="API test results and endpoint performance">
+      <div class="panel-hero">
+        <div class="hero-tag" id="heroTag">k6 · Performance Test</div>
+        <div class="hero-title">API Test Results<br><span id="heroTitleSpan">DeliverGate POS</span></div>
+        <div class="hero-sub" id="heroSub">—</div>
+        <div class="hero-pills" id="heroPills"></div>
+      </div>
+
+      <div class="panel-inner">
+        <div class="section">
+          <div class="section-head">Run Overview</div>
+          <div class="k6-dashboard" id="k6Dashboard"></div>
+          <div class="metrics-grid metrics-grid-3">
+            <div class="metric-card blue">
+              <div class="metric-label">APIs tested</div>
+              <div class="metric-value" id="apiCount">—</div>
+              <div class="metric-sub">Default k6 benchmark data</div>
+            </div>
+            <div class="metric-card green">
+              <div class="metric-label">Fast APIs</div>
+              <div class="metric-value" style="color:var(--green)" id="fastApiCount">—</div>
+              <div class="metric-sub">&lt; 300 ms avg</div>
+            </div>
+            <div class="metric-card amber">
+              <div class="metric-label">Slow APIs</div>
+              <div class="metric-value" style="color:var(--amber)" id="slowApiCount">—</div>
+              <div class="metric-sub">&gt; 600 ms avg</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">Response Time Analysis</div>
+          <div class="chart-card">
+            <div class="chart-title">Avg Response Time — All APIs</div>
+            <div class="chart-desc">Primary API endpoint per test. Sorted by avg response time.</div>
+            <div style="position:relative;height:320px;">
+              <canvas id="mainChart"></canvas>
+            </div>
+          </div>
+          <div class="two-col-charts">
+            <div class="chart-card">
+              <div class="chart-title">p50 vs p95 Comparison</div>
+              <div style="position:relative;height:240px;"><canvas id="p50p95Chart"></canvas></div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-title">Response Time Distribution</div>
+              <div style="position:relative;height:200px;"><canvas id="distChart"></canvas></div>
+              <div id="distLegend" style="display:flex;gap:16px;margin-top:12px;font-size:12px;color:#888;flex-wrap:wrap;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">All APIs — Detailed Results</div>
+          <div class="table-wrap">
+            <table class="scenario-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>API</th>
+                  <th class="center">Avg</th>
+                  <th class="center">Min</th>
+                  <th class="center">Med</th>
+                  <th class="center">Max</th>
+                  <th class="center">P90</th>
+                  <th class="center">P95</th>
+                  <th class="center">Req/s</th>
+                  <th class="center">Status</th>
+                  <th class="center">Latency</th>
+                </tr>
+              </thead>
+              <tbody id="scenarioBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-panel" id="panel-system" data-title="Monitor System Resources" data-desc="CPU, memory, and network during test runs">
+      <div class="panel-inner">
+        <div class="k6-dashboard" id="systemDashboard"></div>
+        <div class="section">
+          <div class="section-head">Resource metrics</div>
+          <div class="metrics-grid" id="systemMetricsGrid"></div>
+        </div>
+        <div class="section">
+          <div class="section-head">Network &amp; data transfer</div>
+          <div class="chart-card">
+            <div class="chart-desc">From k6 summary (data received / sent)</div>
+            <div style="position:relative;height:260px;">
+              <canvas id="systemChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="app-footer">
+      K6 performance data · <span id="footerHost">—</span> · <span id="footerDate">—</span>
+    </footer>
+  </main>
+</div>
+
+<button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle menu">☰</button>
+
+<script src="report-portal/js/report-data.global.js"></script>
+<script src="report-portal/js/dashboard.public.js"></script>
 </body>
 </html>
