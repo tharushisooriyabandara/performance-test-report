@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>K6 Performance Report — DeliverGate</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="report-portal/css/report.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </head>
@@ -126,19 +126,89 @@
       </div>
     </section>
 
-    <section class="content-panel" id="panel-system" data-title="Monitor System Resources" data-desc="CPU, memory, and network during test runs">
+    <section class="content-panel" id="panel-system" data-title="Monitor System Resources" data-desc="CPU, memory, disk, and network from Windows Resource Monitor">
+      <div class="panel-hero system-hero">
+        <div class="hero-tag" id="systemHeroTag">Resource Monitor</div>
+        <div class="hero-title" id="systemHeroTitle">POS_UI.exe</div>
+        <div class="hero-sub" id="systemHeroSub">—</div>
+      </div>
       <div class="panel-inner">
-        <div class="k6-dashboard" id="systemDashboard"></div>
+        <p class="panel-note" id="systemSourceNote"></p>
+        <div class="k6-dashboard system-overview-dash" id="systemDashboard"></div>
+
         <div class="section">
-          <div class="section-head">Resource metrics</div>
-          <div class="metrics-grid" id="systemMetricsGrid"></div>
+          <div class="section-head">Process — CPU &amp; threads</div>
+          <div class="metrics-grid metrics-grid-4" id="systemProcessGrid"></div>
         </div>
+
         <div class="section">
-          <div class="section-head">Network &amp; data transfer</div>
-          <div class="chart-card">
-            <div class="chart-desc">From k6 summary (data received / sent)</div>
-            <div style="position:relative;height:260px;">
-              <canvas id="systemChart"></canvas>
+          <div class="section-head">Process memory</div>
+          <div class="table-wrap">
+            <table class="scenario-table system-rm-table" id="systemMemoryTable">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th class="center">Value (KB)</th>
+                  <th class="center">Approx.</th>
+                </tr>
+              </thead>
+              <tbody id="systemMemoryBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">Network connections</div>
+          <p class="panel-note">System total: <span id="systemNetworkTotal">—</span>. Per-connection B/s shown when captured in Resource Monitor.</p>
+          <div class="table-wrap">
+            <table class="scenario-table system-rm-table" id="systemNetworkTable">
+              <thead>
+                <tr>
+                  <th>Address</th>
+                  <th class="center">Send (B/s)</th>
+                  <th class="center">Receive (B/s)</th>
+                  <th class="center">Total (B/s)</th>
+                </tr>
+              </thead>
+              <tbody id="systemNetworkBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">Disk I/O (process)</div>
+          <p class="panel-note">System total: <span id="systemDiskTotal">—</span>. Paths active for <strong>POS_UI.exe</strong> during the snapshot.</p>
+          <div class="table-wrap">
+            <table class="scenario-table system-rm-table" id="systemDiskTable">
+              <thead>
+                <tr>
+                  <th>Path / location</th>
+                  <th class="center">Read (B/s)</th>
+                  <th class="center">Write (B/s)</th>
+                  <th class="center">Total (B/s)</th>
+                </tr>
+              </thead>
+              <tbody id="systemDiskBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">Charts</div>
+          <div class="two-col-charts">
+            <div class="chart-card">
+              <div class="chart-title">Process memory breakdown</div>
+              <div class="chart-desc">Commit, working set, shareable, private (KB)</div>
+              <div style="position:relative;height:260px;">
+                <canvas id="systemMemoryChart"></canvas>
+              </div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-title">System overview</div>
+              <div class="chart-desc">CPU, disk, network, physical memory (%)</div>
+              <div style="position:relative;height:260px;">
+                <canvas id="systemChart"></canvas>
+              </div>
             </div>
           </div>
         </div>

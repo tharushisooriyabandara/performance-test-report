@@ -66,6 +66,46 @@ const SCRIPT_API_MAP = {
   'cancel-unpaid-order': { method: 'PATCH', path: '/api/v1/orders/{orderId}/status' },
 };
 
+/** Windows Resource Monitor snapshot (POS_UI.exe during k6 test) */
+const DEFAULT_SYSTEM_MONITOR = {
+  source: 'Windows Resource Monitor',
+  capturedAt: '2026-05-20',
+  process: {
+    name: 'POS_UI.exe',
+    pid: 15856,
+    status: 'Running',
+    threads: 45,
+    cpuCurrent: 0,
+    cpuAverage: 1.51,
+  },
+  overview: {
+    cpuUsagePercent: 16,
+    cpuMaxFrequencyPercent: 100,
+    diskIoKBps: 157,
+    diskHighestActivePercent: 2,
+    networkKbps: 51,
+    networkUtilPercent: 0,
+    hardFaultsPerSec: 0,
+    physicalMemoryUsedPercent: 68,
+  },
+  memory: {
+    commitKB: 217088,
+    workingSetKB: 371792,
+    shareableKB: 189084,
+    privateKB: 182708,
+  },
+  network: [
+    { address: 'ab96c323dcc214dc1.awsglobalaccelerator.com' },
+    { address: '76.223.107.159' },
+    { address: 's3.eu-west-2.amazonaws.com' },
+  ],
+  disk: [
+    { path: 'User Downloads' },
+    { path: 'AppData\\Local' },
+    { path: 'System logs' },
+  ],
+};
+
 function getDefaultReportPayload() {
   return {
     meta: {
@@ -75,6 +115,7 @@ function getDefaultReportPayload() {
       vus: 1,
       date: new Date().toISOString().slice(0, 10),
     },
+    system: JSON.parse(JSON.stringify(DEFAULT_SYSTEM_MONITOR)),
     aggregate: {
       totalRequests: 14832,
       reqRateAvg: 49.4,
@@ -290,6 +331,7 @@ function mergeUploadIntoPayload(current, parsed, mode = 'merge') {
     mergeUploadIntoPayload,
     apiFromScriptName,
     DEFAULT_APIS,
-    SCRIPT_API_MAP
+    SCRIPT_API_MAP,
+    DEFAULT_SYSTEM_MONITOR,
   };
 })(window);

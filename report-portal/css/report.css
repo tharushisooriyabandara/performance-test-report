@@ -22,17 +22,20 @@
     --accent: #4ade80;
     --radius: 10px;
     --radius-lg: 14px;
+    --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   }
 
   html { scroll-behavior: smooth; }
 
   body {
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--font-sans);
     background: var(--bg);
     color: var(--text);
-    font-size: 14px;
-    line-height: 1.6;
+    font-size: 15px;
+    line-height: 1.65;
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   /* TOP HEADER */
@@ -49,7 +52,7 @@
     z-index: 100;
   }
   .top-bar-brand {
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-sans);
     font-weight: 700;
     font-size: 15px;
     letter-spacing: 0.02em;
@@ -68,7 +71,7 @@
   .top-bar-meta {
     font-size: 12px;
     color: var(--muted);
-    font-family: 'DM Mono', monospace;
+    font-family: var(--font-sans);
     display: flex;
     gap: 20px;
   }
@@ -81,18 +84,19 @@
     background: linear-gradient(180deg, rgba(74,222,128,0.04) 0%, transparent 100%);
   }
   .hero-tag {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 600;
     color: var(--accent);
-    letter-spacing: 0.12em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     margin-bottom: 12px;
   }
   .hero-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 36px;
-    font-weight: 800;
-    line-height: 1.1;
+    font-family: var(--font-sans);
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1.2;
     color: var(--text);
     margin-bottom: 8px;
   }
@@ -110,7 +114,7 @@
     padding: 5px 12px;
     border-radius: 20px;
     font-size: 12px;
-    font-family: 'DM Mono', monospace;
+    font-family: var(--font-sans);
     border: 1px solid var(--border2);
     background: var(--bg3);
     color: var(--muted);
@@ -126,7 +130,7 @@
     align-items: center;
     gap: 10px;
     margin-bottom: 20px;
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-sans);
     font-size: 13px;
     font-weight: 600;
     text-transform: uppercase;
@@ -168,18 +172,19 @@
     color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    font-family: 'DM Mono', monospace;
+    font-family: var(--font-sans);
     margin-bottom: 10px;
   }
   .metric-value {
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-sans);
     font-size: 26px;
-    font-weight: 700;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
     color: var(--text);
     line-height: 1;
     margin-bottom: 4px;
   }
-  .metric-sub { font-size: 11px; color: var(--muted2); font-family: 'DM Mono', monospace; }
+  .metric-sub { font-size: 11px; color: var(--muted2); font-family: var(--font-sans); }
 
   /* K6-STYLE DASHBOARD */
   .k6-dashboard {
@@ -210,16 +215,17 @@
     color: var(--muted);
     text-transform: lowercase;
     letter-spacing: 0.02em;
-    font-family: 'DM Mono', monospace;
+    font-family: var(--font-sans);
     margin-bottom: 8px;
   }
   .dash-value {
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-sans);
     font-size: 28px;
-    font-weight: 800;
+    font-weight: 700;
     color: var(--text);
-    line-height: 1.1;
-    letter-spacing: -0.02em;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
   }
   .dash-value.green { color: var(--green); }
   .dash-value.amber { color: var(--amber); }
@@ -227,7 +233,7 @@
   .dash-sub {
     font-size: 12px;
     color: var(--muted2);
-    font-family: 'DM Mono', monospace;
+    font-family: var(--font-sans);
     margin-top: 10px;
     line-height: 1.4;
   }
@@ -248,7 +254,7 @@
     padding: 20px 24px;
   }
   .chart-title {
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-sans);
     font-size: 13px;
     font-weight: 600;
     color: var(--text);
@@ -261,13 +267,14 @@
   .scenario-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
+    font-size: 14px;
   }
   .scenario-table thead th {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.04em;
     color: var(--muted2);
     padding: 8px 12px;
     text-align: left;
@@ -286,10 +293,10 @@
     padding: 10px 12px;
     vertical-align: middle;
   }
-  .scenario-table td.right { text-align: right; font-family: 'DM Mono', monospace; }
+  .scenario-table td.right { text-align: right; font-family: var(--font-sans); }
   .scenario-table td.center {
     text-align: center;
-    font-family: 'DM Mono', monospace;
+    font-family: var(--font-sans);
   }
   .scenario-table td.center .bar-wrap {
     justify-content: center;
@@ -302,7 +309,7 @@
     justify-content: center;
   }
   .scenario-num {
-    font-family: 'DM Mono', monospace;
+    font-family: var(--font-sans);
     font-size: 11px;
     color: var(--muted2);
     min-width: 32px;
@@ -320,7 +327,7 @@
     font-weight: 500;
     padding: 2px 7px;
     border-radius: 4px;
-    font-family: 'DM Mono', monospace;
+    font-family: var(--font-sans);
     flex-shrink: 0;
     letter-spacing: 0.04em;
   }
@@ -329,14 +336,22 @@
   .api-method.put   { background: rgba(167,139,250,0.1); color: #a78bfa; border: 1px solid rgba(167,139,250,0.2); }
   .api-method.patch { background: rgba(45,212,191,0.1); color: var(--teal); border: 1px solid rgba(45,212,191,0.2); }
   .api-path {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
+    font-family: var(--font-sans);
+    font-size: 13px;
     color: var(--text);
     font-weight: 400;
-    word-break: break-all;
-    line-height: 1.45;
+    word-break: break-word;
+    line-height: 1.5;
   }
-  .mono { font-family: 'DM Mono', monospace; font-size: 12px; }
+  .mono {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+  .scenario-table td.center.mono,
+  .scenario-table td.right {
+    font-variant-numeric: tabular-nums;
+  }
 
   /* BAR in table */
   .bar-wrap { display: flex; align-items: center; gap: 8px; }
@@ -349,7 +364,7 @@
   /* STATUS BADGE */
   .status-ok {
     display: inline-flex; align-items: center; gap: 4px;
-    font-size: 11px; font-family: 'DM Mono', monospace;
+    font-size: 11px; font-family: var(--font-sans);
     background: var(--green-dim); color: var(--green);
     border: 1px solid rgba(74,222,128,0.25);
     border-radius: 20px; padding: 2px 8px;
@@ -362,7 +377,7 @@
     padding: 32px 40px;
     font-size: 12px;
     color: var(--muted2);
-    font-family: 'DM Mono', monospace;
+    font-family: var(--font-sans);
   }
 
   @media (max-width: 700px) {
@@ -381,7 +396,7 @@
   margin-bottom: 24px;
 }
 .admin-panel h3 {
-  font-family: Syne, sans-serif;
+  font-family: var(--font-sans);
   font-size: 14px;
   margin-bottom: 12px;
   color: var(--text);
@@ -389,7 +404,7 @@
 .admin-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 .admin-panel input[type=file] { display: none; }
 .btn {
-  font-family: DM Sans, sans-serif;
+  font-family: var(--font-sans);
   font-size: 13px;
   padding: 8px 16px;
   border-radius: 8px;
@@ -401,14 +416,14 @@
 .btn:hover { border-color: var(--accent); color: var(--accent); }
 .btn-primary { background: var(--green-dim); border-color: rgba(74,222,128,0.35); color: var(--green); }
 .btn-danger { color: var(--red); border-color: rgba(248,113,113,0.3); }
-.upload-msg { font-size: 12px; color: var(--muted); font-family: DM Mono, monospace; margin-top: 10px; }
+.upload-msg { font-size: 12px; color: var(--muted); font-family: var(--font-sans); margin-top: 10px; }
 .upload-msg.ok { color: var(--green); }
 .upload-msg.err { color: var(--red); }
 .top-bar-actions { display: flex; gap: 12px; align-items: center; font-size: 12px; color: var(--muted); }
-.role-badge { padding: 2px 8px; border-radius: 4px; font-family: DM Mono, monospace; font-size: 10px; text-transform: uppercase; }
+.role-badge { padding: 2px 8px; border-radius: 4px; font-family: var(--font-sans); font-size: 10px; text-transform: uppercase; }
 .role-badge.admin { background: var(--green-dim); color: var(--green); }
 .role-badge.viewer { background: var(--blue-dim); color: var(--blue); }
-.status-fail { background: var(--red-dim); color: var(--red); border: 1px solid rgba(248,113,113,0.25); border-radius: 20px; padding: 2px 8px; font-size: 11px; font-family: DM Mono, monospace; }
+.status-fail { background: var(--red-dim); color: var(--red); border: 1px solid rgba(248,113,113,0.25); border-radius: 20px; padding: 2px 8px; font-size: 11px; font-family: var(--font-sans); }
 
 /* LOGIN */
 .login-page {
@@ -427,10 +442,10 @@
   border-radius: var(--radius-lg);
   padding: 36px 32px;
 }
-.login-card h1 { font-family: Syne, sans-serif; font-size: 22px; margin-bottom: 6px; }
+.login-card h1 { font-family: var(--font-sans); font-size: 22px; margin-bottom: 6px; }
 .login-card p { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
 .form-group { margin-bottom: 16px; }
-.form-group label { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; font-family: DM Mono, monospace; }
+.form-group label { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; font-family: var(--font-sans); }
 .form-group input, .form-group select {
   width: 100%;
   padding: 10px 12px;
@@ -441,7 +456,7 @@
   font-size: 14px;
 }
 .form-error { color: var(--red); font-size: 12px; margin-top: 12px; display: none; }
-.cred-hint { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted2); font-family: DM Mono, monospace; line-height: 1.7; }
+.cred-hint { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted2); font-family: var(--font-sans); line-height: 1.7; }
 
 .top-bar { flex-wrap: wrap; gap: 8px; height: auto; min-height: 56px; padding: 8px 40px; }
 .top-bar-actions { margin-left: auto; order: 2; }
@@ -472,7 +487,7 @@
   transition: transform 0.25s ease;
 }
 .sidebar-brand {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-sans);
   font-weight: 700;
   font-size: 16px;
   padding: 20px 20px 16px;
@@ -504,8 +519,9 @@
   border-radius: var(--radius);
   background: transparent;
   color: var(--muted);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
   text-align: left;
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
@@ -520,8 +536,8 @@
   color: var(--green);
 }
 .nav-icon {
-  font-family: 'DM Mono', monospace;
-  font-size: 14px;
+  font-family: var(--font-sans);
+  font-size: 15px;
   width: 20px;
   text-align: center;
   flex-shrink: 0;
@@ -565,20 +581,22 @@
   z-index: 50;
 }
 .page-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 22px;
-  font-weight: 700;
+  font-family: var(--font-sans);
+  font-size: 24px;
+  font-weight: 600;
   margin-bottom: 4px;
+  letter-spacing: -0.02em;
 }
 .page-desc {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--muted);
   margin: 0;
 }
 .main-header-meta {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted2);
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
@@ -603,25 +621,43 @@
 .metrics-grid-3 {
   grid-template-columns: repeat(3, 1fr);
 }
+.metrics-grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+.system-overview-dash {
+  grid-template-columns: repeat(4, 1fr);
+}
+.system-hero {
+  padding: 24px 32px 16px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(96,165,250,0.06) 0%, transparent 100%);
+}
+.system-hero .hero-title {
+  font-size: 24px;
+  font-weight: 600;
+}
+.system-rm-table .api-path {
+  max-width: 480px;
+}
 .table-wrap { overflow-x: auto; }
 .panel-note {
   font-size: 12px;
   color: var(--muted2);
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-sans);
   margin-top: 8px;
 }
 .app-footer {
   padding: 20px 32px;
   font-size: 11px;
   color: var(--muted2);
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-sans);
   border-top: 1px solid var(--border);
   margin-top: auto;
 }
 .history-list {
   list-style: none;
   font-size: 12px;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-sans);
   color: var(--muted);
 }
 .history-list li {
@@ -666,5 +702,9 @@
   }
   .metrics-grid-3 {
     grid-template-columns: 1fr;
+  }
+  .metrics-grid-4,
+  .system-overview-dash {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

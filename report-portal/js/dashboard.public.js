@@ -1,5 +1,5 @@
 (function () {
-  let charts = { main: null, p50p95: null, dist: null, system: null };
+  let charts = { main: null, p50p95: null, dist: null, system: null, systemMemory: null };
   let payload = DGReportData.getDefaultReportPayload();
   let activePanel = 'api';
 
@@ -13,6 +13,11 @@
     return Math.round(v) + ' ms';
   }
   function fmtNum(n) { return Math.round(n).toLocaleString('en-US'); }
+  function fmtKB(kb) {
+    if (kb >= 1024 * 1024) return (kb / 1024 / 1024).toFixed(2) + ' GB';
+    if (kb >= 1024) return (kb / 1024).toFixed(1) + ' MB';
+    return fmtNum(kb) + ' KB';
+  }
   function fmtMsDash(v) {
     if (v >= 1000) return (v / 1000).toFixed(2) + ' s';
     return fmtNum(v) + ' ms';
@@ -171,12 +176,12 @@
           x: {
             ticks: {
               color: '#666',
-              font: { size: 11 },
+              font: { size: 12, family: 'Inter' },
               callback: (v) => (v >= 1000 ? (v / 1000).toFixed(1) + 's' : v + 'ms'),
             },
             grid: { color: 'rgba(255,255,255,0.05)' },
           },
-          y: { ticks: { color: '#aaa', font: { size: 11, family: 'DM Mono' } }, grid: { display: false } },
+          y: { ticks: { color: '#aaa', font: { size: 12, family: 'Inter' } }, grid: { display: false } },
         },
       },
     });
@@ -204,9 +209,9 @@
           },
         },
         scales: {
-          x: { ticks: { color: '#666', font: { size: 10, family: 'DM Mono' } }, grid: { display: false } },
+          x: { ticks: { color: '#666', font: { size: 12, family: 'Inter' } }, grid: { display: false } },
           y: {
-            ticks: { color: '#666', font: { size: 11 }, callback: (v) => (v >= 1000 ? (v / 1000).toFixed(1) + 's' : v + 'ms') },
+            ticks: { color: '#666', font: { size: 12, family: 'Inter' }, callback: (v) => (v >= 1000 ? (v / 1000).toFixed(1) + 's' : v + 'ms') },
             grid: { color: 'rgba(255,255,255,0.05)' },
           },
         },
@@ -239,79 +244,201 @@
     }
   }
 
+  function getSystemMonitor(data) {
+    return data.system || DGReportData.DEFAULT_SYSTEM_MONITOR;
+  }
+
   function renderSystemPanel(data) {
-    const { meta, aggregate } = data;
-    const agg = aggregate || {};
+    const sys = getSystemMonitor(data);
+    const { process: proc, overview: ov, memory: mem } = sys;
+
+    const heroTag = document.getElementById('systemHeroTag');
+    const heroTitle = document.getElementById('systemHeroTitle');
+    const heroSub = document.getElementById('systemHeroSub');
+    const sourceNote = document.getElementById('systemSourceNote');
+    if (heroTag) heroTag.textContent = sys.source || 'Windows Resource Monitor';
+    if (heroTitle) heroTitle.textContent = `${proc.name} · PID ${proc.pid}`;
+    if (heroSub) {
+      heroSub.textContent = `${proc.status} · ${proc.threads} threads · captured ${sys.capturedAt || '—'}`;
+    }
+    if (sourceNote) {
+      sourceNote.textContent = `Snapshot from ${sys.source} while running k6 load against DeliverGate POS. Overview totals are system-wide; tables below are filtered to ${proc.name}.`;
+    }
+    const netTotal = document.getElementById('systemNetworkTotal');
+    if (netTotal) netTotal.textContent = `${ov.networkKbps} Kbps · ${ov.networkUtilPercent}% utilization`;
+    const diskTotal = document.getElementById('systemDiskTotal');
+    if (diskTotal) diskTotal.textContent = `${ov.diskIoKBps} KB/s · ${ov.diskHighestActivePercent}% highest active time`;
+
     const dashEl = document.getElementById('systemDashboard');
-    if (!dashEl) return;
-
-    const recv = agg.dataReceivedMB ?? 0;
-    const sent = agg.dataSentMB ?? 0;
-    const reqRate = agg.reqRateAvg ?? 0;
-    const vus = meta?.vus ?? 1;
-
-    const cards = [
-      { label: 'virtual users', value: String(vus), sub: 'Concurrent load', accent: 'accent-teal' },
-      { label: 'request rate', value: `${Number(reqRate).toFixed(1)} req/s`, sub: 'Average throughput', accent: 'accent-blue' },
-      { label: 'data received', value: `${recv} MB`, sub: `sent: ${sent} MB`, accent: 'accent-green' },
-      { label: 'total requests', value: fmtNum(agg.totalRequests ?? 0), sub: `${Number(agg.successRate ?? 100).toFixed(1)}% success`, accent: 'accent-blue' },
-    ];
-    dashEl.innerHTML = cards.map((c) => `
+    if (dashEl) {
+      const overviewCards = [
+        { label: 'CPU usage', value: `${ov.cpuUsagePercent}%`, sub: `Max frequency ${ov.cpuMaxFrequencyPercent}%`, accent: 'accent-teal' },
+        { label: 'Disk I/O', value: `${ov.diskIoKBps} KB/s`, sub: `Highest active time ${ov.diskHighestActivePercent}%`, accent: 'accent-blue' },
+        { label: 'Network I/O', value: `${ov.networkKbps} Kbps`, sub: `Utilization ${ov.networkUtilPercent}%`, accent: 'accent-green' },
+        { label: 'Physical memory', value: `${ov.physicalMemoryUsedPercent}%`, sub: `Hard faults ${ov.hardFaultsPerSec}/s`, accent: 'accent-amber' },
+      ];
+      dashEl.innerHTML = overviewCards.map((c) => `
     <div class="dash-card ${c.accent}">
       <div class="dash-label">${c.label}</div>
       <div class="dash-value">${c.value}</div>
       <div class="dash-sub">${c.sub}</div>
     </div>
   `).join('');
+    }
 
-    const grid = document.getElementById('systemMetricsGrid');
-    if (grid) {
-      grid.innerHTML = `
+    const procGrid = document.getElementById('systemProcessGrid');
+    if (procGrid) {
+      procGrid.innerHTML = `
+      <div class="metric-card teal">
+        <div class="metric-label">Status</div>
+        <div class="metric-value" style="color:var(--green);font-size:20px">${proc.status}</div>
+        <div class="metric-sub">${proc.name}</div>
+      </div>
       <div class="metric-card blue">
-        <div class="metric-label">Throughput</div>
-        <div class="metric-value">${Number(reqRate).toFixed(2)}</div>
-        <div class="metric-sub">req/s average</div>
+        <div class="metric-label">Threads</div>
+        <div class="metric-value">${proc.threads}</div>
+        <div class="metric-sub">Active threads</div>
       </div>
       <div class="metric-card green">
-        <div class="metric-label">Data in</div>
-        <div class="metric-value" style="color:var(--green)">${recv} MB</div>
-        <div class="metric-sub">k6 data_received</div>
+        <div class="metric-label">CPU (current)</div>
+        <div class="metric-value">${proc.cpuCurrent}</div>
+        <div class="metric-sub">Resource Monitor</div>
       </div>
       <div class="metric-card amber">
-        <div class="metric-label">Data out</div>
-        <div class="metric-value" style="color:var(--amber)">${sent} MB</div>
-        <div class="metric-sub">k6 data_sent</div>
+        <div class="metric-label">CPU (average)</div>
+        <div class="metric-value">${proc.cpuAverage}</div>
+        <div class="metric-sub">During snapshot</div>
       </div>
     `;
     }
 
-    const canvas = document.getElementById('systemChart');
-    if (!canvas) return;
+    const memBody = document.getElementById('systemMemoryBody');
+    if (memBody) {
+      const rows = [
+        ['Commit (KB)', mem.commitKB, fmtKB(mem.commitKB)],
+        ['Working set (KB)', mem.workingSetKB, fmtKB(mem.workingSetKB)],
+        ['Shareable (KB)', mem.shareableKB, fmtKB(mem.shareableKB)],
+        ['Private (KB)', mem.privateKB, fmtKB(mem.privateKB)],
+      ];
+      memBody.innerHTML = rows.map(([label, kb, approx]) => `
+      <tr>
+        <td>${label}</td>
+        <td class="center mono">${fmtNum(kb)}</td>
+        <td class="center mono">${approx}</td>
+      </tr>
+    `).join('');
+    }
+
+    const netBody = document.getElementById('systemNetworkBody');
+    if (netBody && Array.isArray(sys.network)) {
+      const fmtRate = (v) => (v == null ? '—' : fmtNum(v));
+      netBody.innerHTML = sys.network.map((n) => `
+      <tr>
+        <td class="api-path">${n.address}</td>
+        <td class="center mono">${fmtRate(n.sendBps)}</td>
+        <td class="center mono">${fmtRate(n.receiveBps)}</td>
+        <td class="center mono">${fmtRate(n.totalBps)}</td>
+      </tr>
+    `).join('');
+    }
+
+    const diskBody = document.getElementById('systemDiskBody');
+    if (diskBody && Array.isArray(sys.disk)) {
+      const fmtRate = (v) => (v == null ? '—' : fmtNum(v));
+      diskBody.innerHTML = sys.disk.map((d) => `
+      <tr>
+        <td class="api-path">${d.path}</td>
+        <td class="center mono">${fmtRate(d.readBps)}</td>
+        <td class="center mono">${fmtRate(d.writeBps)}</td>
+        <td class="center mono">${fmtRate(d.totalBps)}</td>
+      </tr>
+    `).join('');
+    }
+
+    if (charts.systemMemory) {
+      charts.systemMemory.destroy();
+      charts.systemMemory = null;
+    }
     if (charts.system) {
       charts.system.destroy();
       charts.system = null;
     }
-    charts.system = new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels: ['Data received (MB)', 'Data sent (MB)'],
-        datasets: [{
-          label: 'MB',
-          data: [recv, sent],
-          backgroundColor: ['rgba(96,165,250,0.75)', 'rgba(74,222,128,0.75)'],
-          borderRadius: 6,
-        }],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { ticks: { color: '#666' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-          x: { ticks: { color: '#aaa' }, grid: { display: false } },
+
+    const memCanvas = document.getElementById('systemMemoryChart');
+    if (memCanvas) {
+      charts.systemMemory = new Chart(memCanvas, {
+        type: 'bar',
+        data: {
+          labels: ['Commit', 'Working set', 'Shareable', 'Private'],
+          datasets: [{
+            label: 'KB',
+            data: [mem.commitKB, mem.workingSetKB, mem.shareableKB, mem.privateKB],
+            backgroundColor: [
+              'rgba(96,165,250,0.75)',
+              'rgba(74,222,128,0.75)',
+              'rgba(251,191,36,0.75)',
+              'rgba(167,139,250,0.75)',
+            ],
+            borderRadius: 6,
+          }],
         },
-      },
-    });
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: {
+              ticks: {
+                color: '#666',
+                font: { size: 12, family: 'Inter' },
+                callback: (v) => fmtKB(v),
+              },
+              grid: { color: 'rgba(255,255,255,0.05)' },
+            },
+            x: { ticks: { color: '#aaa', font: { size: 12, family: 'Inter' } }, grid: { display: false } },
+          },
+        },
+      });
+    }
+
+    const canvas = document.getElementById('systemChart');
+    if (canvas) {
+      charts.system = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: ['CPU %', 'Disk active %', 'Network util %', 'Memory used %'],
+          datasets: [{
+            label: '%',
+            data: [
+              ov.cpuUsagePercent,
+              ov.diskHighestActivePercent,
+              ov.networkUtilPercent,
+              ov.physicalMemoryUsedPercent,
+            ],
+            backgroundColor: [
+              'rgba(45,212,191,0.75)',
+              'rgba(96,165,250,0.75)',
+              'rgba(74,222,128,0.75)',
+              'rgba(251,191,36,0.75)',
+            ],
+            borderRadius: 6,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: {
+              max: 100,
+              ticks: { color: '#666', font: { size: 12, family: 'Inter' }, callback: (v) => v + '%' },
+              grid: { color: 'rgba(255,255,255,0.05)' },
+            },
+            x: { ticks: { color: '#aaa', font: { size: 11, family: 'Inter' } }, grid: { display: false } },
+          },
+        },
+      });
+    }
   }
 
   function switchPanel(panelId) {
@@ -334,8 +461,11 @@
         Object.values(charts).forEach((c) => c?.resize?.());
       });
     }
-    if (panelId === 'system' && charts.system) {
-      requestAnimationFrame(() => charts.system?.resize?.());
+    if (panelId === 'system') {
+      requestAnimationFrame(() => {
+        charts.system?.resize?.();
+        charts.systemMemory?.resize?.();
+      });
     }
 
     const sidebar = document.getElementById('sidebar');
